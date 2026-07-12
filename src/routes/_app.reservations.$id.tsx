@@ -229,6 +229,13 @@ function ToursSection({ reservationId, currency, tours, onChange }: {
     setForm({ name: t.name, tour_date: t.tour_date, pax: t.pax, unit_price: Number(t.unit_price), status: t.status, notes: t.notes ?? "" });
     setOpen(true);
   }
+  async function recomputeTotal() {
+    const { data: allTours } = await supabase
+      .from("reservation_tours").select("total_price").eq("reservation_id", reservationId);
+    const total = (allTours ?? []).reduce((s, t: any) => s + Number(t.total_price), 0);
+    await supabase.from("reservations").update({ total_amount: total }).eq("id", reservationId);
+    await supabase.rpc("recompute_reservation_totals", { _reservation_id: reservationId });
+  }
   async function save() {
     if (!form.name || !form.tour_date) return toast.error("Nome e data obrigatórios");
     const payload = { ...form, pax: Number(form.pax), unit_price: Number(form.unit_price), reservation_id: reservationId, notes: form.notes || null };
@@ -236,12 +243,14 @@ function ToursSection({ reservationId, currency, tours, onChange }: {
       ? await supabase.from("reservation_tours").update(payload).eq("id", editing.id)
       : await supabase.from("reservation_tours").insert(payload);
     if (error) return toast.error(error.message);
+    await recomputeTotal();
     toast.success("Salvo"); setOpen(false); onChange();
   }
   async function remove(t: any) {
     if (!confirm(`Excluir passeio ${t.name}?`)) return;
     const { error } = await supabase.from("reservation_tours").delete().eq("id", t.id);
     if (error) return toast.error(error.message);
+    await recomputeTotal();
     onChange();
   }
 

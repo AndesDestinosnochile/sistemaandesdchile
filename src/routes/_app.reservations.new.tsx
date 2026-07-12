@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,10 +29,7 @@ function NewReservationPage() {
     cpf: "",
     paxCount: 1,
     currency: "BRL" as Currency,
-    totalAmount: 0,
     reservationDate: new Date().toISOString().slice(0, 10),
-    checkIn: "",
-    checkOut: "",
     notes: "",
   });
 
@@ -42,9 +40,9 @@ function NewReservationPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return toast.error("Sessão expirada");
+    if (!form.fullName.trim()) return toast.error("Informe o nome do passageiro");
     setSaving(true);
     try {
-      // 1) create/find customer
       const { data: customer, error: cErr } = await supabase
         .from("customers")
         .insert({
@@ -60,25 +58,26 @@ function NewReservationPage() {
         .single();
       if (cErr) throw cErr;
 
-      // 2) create reservation
       const code = "R" + Date.now().toString(36).toUpperCase();
-      const { error: rErr } = await supabase.from("reservations").insert({
-        created_by: user.id,
-        code,
-        customer_id: customer.id,
-        seller_id: user.id,
-        currency: form.currency,
-        total_amount: form.totalAmount,
-        paid_amount: 0,
-        reservation_date: form.reservationDate,
-        check_in: form.checkIn || null,
-        check_out: form.checkOut || null,
-        notes: form.notes || null,
-      });
+      const { data: reservation, error: rErr } = await supabase
+        .from("reservations")
+        .insert({
+          created_by: user.id,
+          code,
+          customer_id: customer.id,
+          seller_id: user.id,
+          currency: form.currency,
+          total_amount: 0,
+          paid_amount: 0,
+          reservation_date: form.reservationDate,
+          notes: form.notes || null,
+        })
+        .select("id")
+        .single();
       if (rErr) throw rErr;
 
-      toast.success("Reserva criada");
-      navigate({ to: "/reservations" });
+      toast.success("Reserva criada — agora adicione os passeios");
+      navigate({ to: "/reservations/$id", params: { id: reservation.id } });
     } catch (err: any) {
       toast.error(err.message ?? "Erro ao criar reserva");
     } finally {
@@ -88,11 +87,21 @@ function NewReservationPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <Button variant="ghost" size="sm" asChild className="mb-2 -ml-2">
+        <Link to="/reservations">
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </Link>
+      </Button>
+
       <div className="mb-6">
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
           Reservas
         </p>
         <h1 className="mt-1 text-3xl">Nova reserva</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Preencha só os dados do passageiro. Passeios, pagamentos e contrato são adicionados
+          depois na tela da reserva.
+        </p>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-6">
@@ -149,22 +158,6 @@ function NewReservationPage() {
                 <option value="CLP">CLP — Peso chileno</option>
               </select>
             </Field>
-            <Field label="Check-in">
-              <Input type="date" value={form.checkIn} onChange={(e) => set("checkIn", e.target.value)} />
-            </Field>
-            <Field label="Check-out">
-              <Input type="date" value={form.checkOut} onChange={(e) => set("checkOut", e.target.value)} />
-            </Field>
-            <Field label="Valor total" required>
-              <Input
-                type="number"
-                step="0.01"
-                min={0}
-                value={form.totalAmount}
-                onChange={(e) => set("totalAmount", Number(e.target.value))}
-                required
-              />
-            </Field>
             <div className="sm:col-span-2">
               <Field label="Observações">
                 <Textarea
@@ -183,7 +176,7 @@ function NewReservationPage() {
           </Button>
           <Button type="submit" disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Criar reserva
+            Criar e adicionar passeios
           </Button>
         </div>
       </form>

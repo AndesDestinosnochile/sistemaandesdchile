@@ -83,14 +83,14 @@ function ReservationsPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
-            {t("nav.reservations")}
+            Reservas
           </p>
-          <h1 className="mt-1 text-3xl">{t("reservations.title")}</h1>
+          <h1 className="mt-1 text-3xl">Reservas</h1>
         </div>
         <Button asChild>
           <Link to="/reservations/new">
             <Plus className="h-4 w-4" />
-            {t("reservations.new")}
+            Nova reserva
           </Link>
         </Button>
       </div>
