@@ -17,9 +17,16 @@ export const Route = createFileRoute("/_app/settings")({
 function SettingsPage() {
   const { user } = useAuth();
   const { i18n } = useTranslation();
+  const [, forceRender] = useState(0);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const handler = () => forceRender((n) => n + 1);
+    i18n.on("languageChanged", handler);
+    return () => i18n.off("languageChanged", handler);
+  }, [i18n]);
 
   useEffect(() => {
     if (!user) return;
