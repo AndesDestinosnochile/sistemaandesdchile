@@ -102,7 +102,6 @@ function ReservationDetailPage() {
       if (cErr) throw cErr;
 
       const { error } = await supabase.from("reservations").update({
-        total_amount: Number(form.total_amount),
         currency: form.currency,
         check_in: form.check_in || null,
         check_out: form.check_out || null,
