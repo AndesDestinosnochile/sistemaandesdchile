@@ -192,7 +192,9 @@ function ReservationDetailPage() {
               {hotels.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
             </select>
           </F>
-          <F label="Valor total"><Input type="number" step="0.01" value={form.total_amount} onChange={(e) => setForm({ ...form, total_amount: e.target.value })} /></F>
+          <F label="Valor total (auto)">
+            <Input type="number" step="0.01" value={reservation.total_amount} disabled readOnly />
+          </F>
           <div className="sm:col-span-2"><F label="Observações"><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></F></div>
         </CardContent>
       </Card>
