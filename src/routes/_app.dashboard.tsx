@@ -100,25 +100,13 @@ function DashboardPage() {
 
       <Card className="mt-8 border-border/60">
         <CardHeader>
-          <CardTitle className="text-base">Próximos passos da implementação</CardTitle>
+          <CardTitle className="text-base">Pendente</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+          <ul className="grid gap-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
               <ArrowUpRight className="mt-0.5 h-4 w-4 text-accent" />
-              CRUD completo de Reservas (wizard, edição, exclusão admin)
-            </li>
-            <li className="flex items-start gap-2">
-              <ArrowUpRight className="mt-0.5 h-4 w-4 text-accent" />
-              Upload de nota fiscal + geração de contrato PDF
-            </li>
-            <li className="flex items-start gap-2">
-              <ArrowUpRight className="mt-0.5 h-4 w-4 text-accent" />
-              Logística mensal com filtros e agrupamento por dia
-            </li>
-            <li className="flex items-start gap-2">
-              <ArrowUpRight className="mt-0.5 h-4 w-4 text-accent" />
-              Envio Resend via Edge Function + histórico de e-mails
+              Envio de e-mail via Resend + histórico (configurar quando o domínio estiver pronto)
             </li>
           </ul>
         </CardContent>
