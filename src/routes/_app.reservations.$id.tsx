@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Save, Trash2, Plus, FileText, Download, Loader2, RefreshCw,
+  ArrowLeft, Save, Trash2, Plus, FileText, Download, Loader2, RefreshCw, Mail, Send,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -201,6 +201,7 @@ function ReservationDetailPage() {
       <ToursSection reservationId={id} currency={reservation.currency} tours={reservation.tours ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["reservation", id] })} />
       <PaymentsSection reservationId={id} currency={reservation.currency} payments={reservation.payments ?? []} userId={user?.id ?? ""} onChange={() => qc.invalidateQueries({ queryKey: ["reservation", id] })} />
       <DocumentsSection reservationId={id} documents={reservation.documents ?? []} contracts={reservation.contracts ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["reservation", id] })} />
+      <EmailSection reservationId={id} reservationCode={reservation.code} customerEmail={reservation.customer?.email ?? null} customerName={reservation.customer?.full_name ?? ""} />
     </div>
   );
 }
@@ -533,5 +534,123 @@ function DocList({ title, bucket, items, onOpen, onDeleted }: {
         ))}
       </div>
     </div>
+  );
+}
+
+// ─── Envio de e-mail ────────────────────────────────────────────────────────
+function EmailSection({ reservationId, reservationCode, customerEmail, customerName }: {
+  reservationId: string; reservationCode: string; customerEmail: string | null; customerName: string;
+}) {
+  const [sending, setSending] = useState(false);
+  const { data: logs = [], refetch } = useQuery({
+    queryKey: ["email-logs", reservationId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("email_logs")
+        .select("id, to_email, subject, status, error, sent_at")
+        .eq("reservation_id", reservationId)
+        .order("sent_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
+
+  const disabled = sending || !customerEmail;
+
+  async function send() {
+    if (!customerEmail) return;
+    setSending(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Sessão expirada");
+      const subject = `Documentos da reserva ${reservationCode}`;
+      const html = `<p>Olá ${customerName || ""},</p><p>Segue em anexo os documentos referentes à sua reserva <b>${reservationCode}</b>.</p><p>Andes Destinos</p>`;
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-reservation-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            reservation_id: reservationId,
+            email: customerEmail,
+            to: customerEmail,
+            subject,
+            html,
+            attach_contract: true,
+          }),
+        },
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? "Falha no envio");
+      }
+      toast.success("Documentos enviados com sucesso");
+      refetch();
+    } catch (e: any) {
+      toast.error(e.message ?? "Não foi possível enviar o e-mail");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base flex items-center gap-2"><Mail className="h-4 w-4" /> Envio de documentos</CardTitle>
+        <Button size="sm" onClick={send} disabled={disabled}>
+          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          Enviar documentos por e-mail
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {!customerEmail ? (
+          <p className="text-sm text-destructive">
+            Cliente não possui e-mail cadastrado. Adicione um e-mail ao passageiro para habilitar o envio.
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">Destinatário: <b>{customerEmail}</b></p>
+        )}
+
+        <div>
+          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Histórico de envios</div>
+          {logs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhum e-mail enviado.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="py-2 pr-3 font-medium">Data</th>
+                    <th className="py-2 pr-3 font-medium">Destinatário</th>
+                    <th className="py-2 pr-3 font-medium">Assunto</th>
+                    <th className="py-2 pr-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {logs.map((l) => (
+                    <tr key={l.id}>
+                      <td className="py-2 pr-3 whitespace-nowrap">{new Date(l.sent_at).toLocaleString("pt-BR")}</td>
+                      <td className="py-2 pr-3">{l.to_email}</td>
+                      <td className="py-2 pr-3">{l.subject}</td>
+                      <td className="py-2 pr-3">
+                        <Badge variant={l.status === "sent" ? "default" : "destructive"}>
+                          {l.status === "sent" ? "Enviado" : "Falhou"}
+                        </Badge>
+                        {l.error && <div className="text-xs text-destructive mt-1 max-w-xs truncate" title={l.error}>{l.error}</div>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
