@@ -201,6 +201,7 @@ function ReservationDetailPage() {
       <ToursSection reservationId={id} currency={reservation.currency} tours={reservation.tours ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["reservation", id] })} />
       <PaymentsSection reservationId={id} currency={reservation.currency} payments={reservation.payments ?? []} userId={user?.id ?? ""} onChange={() => qc.invalidateQueries({ queryKey: ["reservation", id] })} />
       <DocumentsSection reservationId={id} documents={reservation.documents ?? []} contracts={reservation.contracts ?? []} onChange={() => qc.invalidateQueries({ queryKey: ["reservation", id] })} />
+      <EmailSection reservationId={id} reservationCode={reservation.code} customerEmail={reservation.customer?.email ?? null} customerName={reservation.customer?.full_name ?? ""} />
     </div>
   );
 }
