@@ -30,20 +30,20 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
-  { to: "/reservations", label: "Reservas", icon: ClipboardList },
-  { to: "/logistics", label: "Logística", icon: MapPin, hideForSeller: true },
-  { to: "/calendar", label: "Calendário", icon: CalendarDays },
-  { to: "/customers", label: "Passageiros", icon: Users },
-  { to: "/hotels", label: "Hotéis", icon: Building2 },
-  { to: "/tours", label: "Passeios", icon: Compass },
-  { to: "/reports", label: "Relatórios", icon: BarChart3, adminOnly: true },
-  { to: "/users", label: "Usuários", icon: UserCog, adminOnly: true },
-  { to: "/settings", label: "Configurações", icon: Settings },
+  { to: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
+  { to: "/reservations", label: "nav.reservations", icon: ClipboardList },
+  { to: "/logistics", label: "nav.logistics", icon: MapPin, hideForSeller: true },
+  { to: "/calendar", label: "nav.calendar", icon: CalendarDays },
+  { to: "/customers", label: "nav.customers", icon: Users },
+  { to: "/hotels", label: "nav.hotels", icon: Building2 },
+  { to: "/tours", label: "nav.tours", icon: Compass },
+  { to: "/reports", label: "nav.reports", icon: BarChart3, adminOnly: true },
+  { to: "/users", label: "nav.users", icon: UserCog, adminOnly: true },
+  { to: "/settings", label: "nav.settings", icon: Settings },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isAdmin, isLogistics, isSeller, roles, user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -105,7 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     active ? "text-accent" : "text-sidebar-foreground/60 group-hover:text-accent",
                   )}
                 />
-                {item.label}
+                {t(item.label)}
               </Link>
             );
           })}
@@ -129,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-white/5 hover:text-white"
           >
             <LogOut className="h-4 w-4" />
-            Sair
+            {t("nav.logout")}
           </button>
         </div>
       </aside>
