@@ -149,7 +149,7 @@ function ReservationsPage() {
                       <div className="text-xs text-muted-foreground">{r.customers.phone}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3">{r.check_in ?? "—"}</td>
+                  <td className="px-4 py-3">{r.reservation_date ?? "—"}</td>
                   <td className="px-4 py-3 text-right font-mono">
                     {formatMoney(r.total_amount, r.currency)}
                   </td>
