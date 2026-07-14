@@ -27,11 +27,10 @@ interface ReservationRow {
   paid_amount: number;
   balance: number;
   financial_status: FinancialStatus;
-  check_in: string | null;
-  check_out: string | null;
   reservation_date: string;
   customers: { full_name: string; phone: string | null } | null;
 }
+
 
 const STATUS_LABEL: Record<FinancialStatus, string> = {
   paid: "Pago",
@@ -57,7 +56,7 @@ function ReservationsPage() {
       let q = supabase
         .from("reservations")
         .select(
-          "id, code, currency, total_amount, paid_amount, balance, financial_status, check_in, check_out, reservation_date, customers(full_name, phone)",
+          "id, code, currency, total_amount, paid_amount, balance, financial_status, reservation_date, customers(full_name, phone)",
         )
         .order("reservation_date", { ascending: false })
         .limit(50);
@@ -114,7 +113,7 @@ function ReservationsPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">{t("reservations.code")}</th>
                 <th className="px-4 py-3 font-medium">{t("reservations.customer")}</th>
-                <th className="px-4 py-3 font-medium">{t("reservations.checkIn")}</th>
+                <th className="px-4 py-3 font-medium">{t("reservations.date")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("reservations.total")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("reservations.paid")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("reservations.balance")}</th>
@@ -150,7 +149,7 @@ function ReservationsPage() {
                       <div className="text-xs text-muted-foreground">{r.customers.phone}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3">{r.check_in ?? "—"}</td>
+                  <td className="px-4 py-3">{r.reservation_date ?? "—"}</td>
                   <td className="px-4 py-3 text-right font-mono">
                     {formatMoney(r.total_amount, r.currency)}
                   </td>

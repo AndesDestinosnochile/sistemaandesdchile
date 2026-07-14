@@ -68,8 +68,6 @@ function ReservationDetailPage() {
     setForm({
       total_amount: Number(reservation.total_amount),
       currency: reservation.currency,
-      check_in: reservation.check_in ?? "",
-      check_out: reservation.check_out ?? "",
       reservation_date: reservation.reservation_date,
       hotel_id: reservation.hotel_id ?? "",
       notes: reservation.notes ?? "",
@@ -80,6 +78,7 @@ function ReservationDetailPage() {
       customer_pax: reservation.customer?.pax_count ?? 1,
     });
   }
+
 
   if (isLoading || !reservation || !form) {
     return (
@@ -103,13 +102,12 @@ function ReservationDetailPage() {
 
       const { error } = await supabase.from("reservations").update({
         currency: form.currency,
-        check_in: form.check_in || null,
-        check_out: form.check_out || null,
         reservation_date: form.reservation_date,
         hotel_id: form.hotel_id || null,
         notes: form.notes || null,
       }).eq("id", id);
       if (error) throw error;
+
 
       // recompute totals (in case total changed relative to payments)
       await supabase.rpc("recompute_reservation_totals", { _reservation_id: id });
@@ -182,15 +180,21 @@ function ReservationDetailPage() {
               <option value="BRL">BRL</option><option value="CLP">CLP</option>
             </select>
           </F>
-          <F label="Check-in"><Input type="date" value={form.check_in} onChange={(e) => setForm({ ...form, check_in: e.target.value })} /></F>
-          <F label="Check-out"><Input type="date" value={form.check_out} onChange={(e) => setForm({ ...form, check_out: e.target.value })} /></F>
-          <F label="Hotel">
+          <F label="Hotel (hospedagem do cliente)">
             <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-              value={form.hotel_id} onChange={(e) => setForm({ ...form, hotel_id: e.target.value })}>
+              value={form.hotel_id}
+              onChange={async (e) => {
+                const hotel_id = e.target.value;
+                setForm({ ...form, hotel_id });
+                const { error } = await supabase.from("reservations").update({ hotel_id: hotel_id || null }).eq("id", id);
+                if (error) toast.error(error.message);
+                else { toast.success("Hotel atualizado"); qc.invalidateQueries({ queryKey: ["reservation", id] }); }
+              }}>
               <option value="">— sem hotel —</option>
               {hotels.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
             </select>
           </F>
+
           <F label="Valor total (auto)">
             <Input type="number" step="0.01" value={reservation.total_amount} disabled readOnly />
           </F>

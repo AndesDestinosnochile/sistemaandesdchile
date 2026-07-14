@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, LogIn, LogOut as LogOutIcon, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, CalendarPlus, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,11 @@ export const Route = createFileRoute("/_app/calendar")({
   component: CalendarPage,
 });
 
+
 interface ResRow {
   id: string;
   code: string;
-  check_in: string | null;
-  check_out: string | null;
+  reservation_date: string | null;
   customers: { full_name: string; phone: string | null } | null;
 }
 interface TourRow {
@@ -32,8 +32,7 @@ interface TourRow {
 }
 
 type DayEvent =
-  | { kind: "in"; label: string; reservationId: string; code: string; customer: string }
-  | { kind: "out"; label: string; reservationId: string; code: string; customer: string }
+  | { kind: "reservation"; label: string; reservationId: string; code: string; customer: string }
   | { kind: "tour"; label: string; reservationId: string; code: string; customer: string; tourName: string; pax: number; status: string };
 
 function CalendarPage() {
@@ -43,7 +42,7 @@ function CalendarPage() {
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "in" | "out" | "tour">("all");
+  const [filter, setFilter] = useState<"all" | "reservation" | "tour">("all");
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
@@ -59,8 +58,9 @@ function CalendarPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reservations")
-        .select("id,code,check_in,check_out,customers(full_name,phone)")
-        .or(`check_in.gte.${from},check_out.lte.${to}`);
+        .select("id,code,reservation_date,customers(full_name,phone)")
+        .gte("reservation_date", from)
+        .lte("reservation_date", to);
       if (error) throw error;
       return (data ?? []) as unknown as ResRow[];
     },
@@ -86,9 +86,9 @@ function CalendarPage() {
       map.set(day, arr);
     };
     for (const r of reservations) {
+      if (!r.reservation_date) continue;
       const name = r.customers?.full_name ?? r.code;
-      if (r.check_in) push(r.check_in, { kind: "in", label: `IN · ${name}`, reservationId: r.id, code: r.code, customer: name });
-      if (r.check_out) push(r.check_out, { kind: "out", label: `OUT · ${name}`, reservationId: r.id, code: r.code, customer: name });
+      push(r.reservation_date, { kind: "reservation", label: `Reserva · ${name}`, reservationId: r.id, code: r.code, customer: name });
     }
     for (const t of tours) {
       const name = t.reservations?.customers?.full_name ?? t.reservations?.code ?? "";
@@ -108,18 +108,18 @@ function CalendarPage() {
 
   const monthName = cursor.toLocaleDateString(i18n.language, { month: "long", year: "numeric" });
   const totals = useMemo(() => {
-    let ins = 0, outs = 0, tourCount = 0, pax = 0;
+    const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+    let resCount = 0, tourCount = 0, pax = 0;
     for (const r of reservations) {
-      if (r.check_in && r.check_in.slice(0, 7) === `${year}-${String(month + 1).padStart(2, "0")}`) ins++;
-      if (r.check_out && r.check_out.slice(0, 7) === `${year}-${String(month + 1).padStart(2, "0")}`) outs++;
+      if (r.reservation_date && r.reservation_date.slice(0, 7) === monthPrefix) resCount++;
     }
     for (const t of tours) {
-      if (t.tour_date.slice(0, 7) === `${year}-${String(month + 1).padStart(2, "0")}`) {
+      if (t.tour_date.slice(0, 7) === monthPrefix) {
         tourCount++;
         pax += t.pax;
       }
     }
-    return { ins, outs, tourCount, pax };
+    return { resCount, tourCount, pax };
   }, [reservations, tours, year, month]);
 
   const weekLabels = i18n.language.startsWith("es")
@@ -140,16 +140,15 @@ function CalendarPage() {
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">Operação</p>
           <h1 className="mt-1 text-3xl capitalize">{monthName}</h1>
           <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1"><LogIn className="h-3.5 w-3.5 text-emerald-600" /> {totals.ins} check-ins</span>
-            <span className="inline-flex items-center gap-1"><LogOutIcon className="h-3.5 w-3.5 text-amber-600" /> {totals.outs} check-outs</span>
+            <span className="inline-flex items-center gap-1"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /> {totals.resCount} reservas</span>
             <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-blue-600" /> {totals.tourCount} passeios · {totals.pax} pax</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <div className="flex items-center gap-1 rounded-md border p-0.5">
-            {(["all", "in", "out", "tour"] as const).map((f) => (
+            {(["all", "reservation", "tour"] as const).map((f) => (
               <Button key={f} size="sm" variant={filter === f ? "default" : "ghost"} onClick={() => setFilter(f)} className="h-7 px-2 text-xs">
-                {f === "all" ? "Todos" : f === "in" ? "Check-in" : f === "out" ? "Check-out" : "Passeios"}
+                {f === "all" ? "Todos" : f === "reservation" ? "Reservas" : "Passeios"}
               </Button>
             ))}
           </div>
@@ -194,10 +193,8 @@ function CalendarPage() {
                       <div
                         key={i}
                         className={`truncate rounded px-1 py-0.5 ${
-                          e.kind === "in"
+                          e.kind === "reservation"
                             ? "bg-emerald-500/15 text-emerald-700"
-                            : e.kind === "out"
-                            ? "bg-amber-500/15 text-amber-700"
                             : "bg-blue-500/15 text-blue-700"
                         }`}
                       >
@@ -234,8 +231,7 @@ function CalendarPage() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
-                    {e.kind === "in" && <Badge className="bg-emerald-600 hover:bg-emerald-600">Check-in</Badge>}
-                    {e.kind === "out" && <Badge className="bg-amber-600 hover:bg-amber-600">Check-out</Badge>}
+                    {e.kind === "reservation" && <Badge className="bg-emerald-600 hover:bg-emerald-600">Reserva</Badge>}
                     {e.kind === "tour" && <Badge className="bg-blue-600 hover:bg-blue-600">Passeio</Badge>}
                     <span className="font-mono text-xs text-muted-foreground">{e.code}</span>
                     {e.kind === "tour" && (
@@ -261,3 +257,4 @@ function CalendarPage() {
     </div>
   );
 }
+
