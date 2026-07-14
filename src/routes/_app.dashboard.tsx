@@ -44,20 +44,20 @@ function DashboardPage() {
   });
 
   const cards = [
-    { label: "Reservas do mês", value: metrics?.reservations_count ?? 0, icon: ReceiptText },
-    { label: "Passageiros", value: metrics?.pax_total ?? 0, icon: Users2 },
+    { label: t("dashboard.reservationsMonth"), value: metrics?.reservations_count ?? 0, icon: ReceiptText },
+    { label: t("dashboard.pax"), value: metrics?.pax_total ?? 0, icon: Users2 },
     {
-      label: "Valor vendido",
+      label: t("dashboard.sold"),
       value: formatMoney(metrics?.sold_amount ?? 0, "BRL"),
       icon: DollarSign,
     },
     {
-      label: "Valor recebido",
+      label: t("dashboard.received"),
       value: formatMoney(metrics?.received_amount ?? 0, "BRL"),
       icon: Wallet,
     },
     {
-      label: "Saldo pendente",
+      label: t("dashboard.pendingBalance"),
       value: formatMoney(metrics?.pending_balance ?? 0, "BRL"),
       icon: CalendarClock,
     },
@@ -72,12 +72,13 @@ function DashboardPage() {
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
             {t("nav.dashboard")}
           </p>
-          <h1 className="mt-1 text-3xl">Visão geral</h1>
+          <h1 className="mt-1 text-3xl">{t("dashboard.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Métricas do mês corrente. Filtros e gráficos completos na próxima entrega.
+            {t("dashboard.subtitle")}
           </p>
         </div>
       </div>
+
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {cards.map((c) => {

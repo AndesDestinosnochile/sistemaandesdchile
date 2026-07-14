@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_app/settings")({
 
 function SettingsPage() {
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [, forceRender] = useState(0);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -41,35 +41,35 @@ function SettingsPage() {
     const { error } = await supabase.from("profiles").update({ full_name: fullName, phone: phone || null }).eq("id", user.id);
     setSaving(false);
     if (error) toast.error(error.message);
-    else toast.success("Perfil atualizado");
+    else toast.success(t("settings.profileUpdated"));
   }
 
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
-        <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">Conta</p>
-        <h1 className="mt-1 text-3xl">Configurações</h1>
+        <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">{t("settings.kicker")}</p>
+        <h1 className="mt-1 text-3xl">{t("settings.title")}</h1>
       </div>
 
       <Card className="mb-6">
-        <CardHeader><CardTitle className="text-base">Perfil</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">{t("settings.profile")}</CardTitle></CardHeader>
         <CardContent className="grid gap-4">
-          <div className="space-y-1.5"><Label>Nome completo</Label>
+          <div className="space-y-1.5"><Label>{t("settings.fullName")}</Label>
             <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </div>
-          <div className="space-y-1.5"><Label>Telefone</Label>
+          <div className="space-y-1.5"><Label>{t("settings.phone")}</Label>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
-          <div><Button onClick={saveProfile} disabled={saving}>Salvar</Button></div>
+          <div><Button onClick={saveProfile} disabled={saving}>{t("common.save")}</Button></div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Idioma</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">{t("settings.language")}</CardTitle></CardHeader>
         <CardContent className="flex gap-2">
           {[
             { code: "pt-BR", label: "Português" },
-            { code: "es-CL", label: "Español" },
+            { code: "es-CL", label: "Español (CL)" },
           ].map((l) => (
             <Button key={l.code} variant={i18n.language === l.code ? "default" : "outline"}
               onClick={() => i18n.changeLanguage(l.code)}>
@@ -81,3 +81,4 @@ function SettingsPage() {
     </div>
   );
 }
+
