@@ -68,8 +68,6 @@ function ReservationDetailPage() {
     setForm({
       total_amount: Number(reservation.total_amount),
       currency: reservation.currency,
-      check_in: reservation.check_in ?? "",
-      check_out: reservation.check_out ?? "",
       reservation_date: reservation.reservation_date,
       hotel_id: reservation.hotel_id ?? "",
       notes: reservation.notes ?? "",
@@ -80,6 +78,7 @@ function ReservationDetailPage() {
       customer_pax: reservation.customer?.pax_count ?? 1,
     });
   }
+
 
   if (isLoading || !reservation || !form) {
     return (
