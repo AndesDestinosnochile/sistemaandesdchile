@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowUpRight,
   CalendarClock,
   DollarSign,
   ReceiptText,
   Users2,
   Wallet,
 } from "lucide-react";
+
 import { useTranslation } from "react-i18next";
 
 import { SupabaseSetupBanner } from "@/components/common/supabase-setup-banner";
