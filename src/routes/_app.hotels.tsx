@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -40,6 +41,7 @@ const empty: Omit<Hotel, "id"> = {
 };
 
 function HotelsPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Hotel | null>(null);
@@ -75,7 +77,7 @@ function HotelsPage() {
     setOpen(true);
   }
   async function save() {
-    if (!form.name.trim()) return toast.error("Nome obrigatório");
+    if (!form.name.trim()) return toast.error(t("customers.nameRequired"));
     setSaving(true);
     try {
       const payload = {
@@ -87,25 +89,25 @@ function HotelsPage() {
       if (editing) {
         const { error } = await supabase.from("hotels").update(payload).eq("id", editing.id);
         if (error) throw error;
-        toast.success("Hotel atualizado");
+        toast.success(t("hotels.updated"));
       } else {
         const { error } = await supabase.from("hotels").insert(payload);
         if (error) throw error;
-        toast.success("Hotel criado");
+        toast.success(t("hotels.created"));
       }
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["hotels"] });
     } catch (e: any) {
-      toast.error(e.message ?? "Erro");
+      toast.error(e.message ?? t("common.genericError"));
     } finally {
       setSaving(false);
     }
   }
   async function remove(h: Hotel) {
-    if (!confirm(`Excluir ${h.name}?`)) return;
+    if (!confirm(t("hotels.deleteConfirm", { name: h.name }))) return;
     const { error } = await supabase.from("hotels").delete().eq("id", h.id);
     if (error) return toast.error(error.message);
-    toast.success("Hotel excluído");
+    toast.success(t("hotels.deleted"));
     qc.invalidateQueries({ queryKey: ["hotels"] });
   }
 
@@ -114,12 +116,12 @@ function HotelsPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
-            Cadastro
+            {t("hotels.kicker")}
           </p>
-          <h1 className="mt-1 text-3xl">Hotéis</h1>
+          <h1 className="mt-1 text-3xl">{t("hotels.title")}</h1>
         </div>
         <Button onClick={openNew}>
-          <Plus className="h-4 w-4" /> Novo hotel
+          <Plus className="h-4 w-4" /> {t("hotels.new")}
         </Button>
       </div>
 
@@ -128,19 +130,19 @@ function HotelsPage() {
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 font-medium">Nome</th>
-                <th className="px-4 py-3 font-medium">Endereço</th>
-                <th className="px-4 py-3 font-medium">Cidade</th>
-                <th className="px-4 py-3 font-medium">País</th>
+                <th className="px-4 py-3 font-medium">{t("hotels.colName")}</th>
+                <th className="px-4 py-3 font-medium">{t("hotels.colAddress")}</th>
+                <th className="px-4 py-3 font-medium">{t("hotels.colCity")}</th>
+                <th className="px-4 py-3 font-medium">{t("hotels.colCountry")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y">
               {isLoading && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">Carregando...</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">{t("common.loading")}</td></tr>
               )}
               {!isLoading && data.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Nenhum hotel cadastrado.</td></tr>
+                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">{t("hotels.empty")}</td></tr>
               )}
               {data.map((h) => (
                 <tr key={h.id} className="hover:bg-muted/30">
@@ -168,30 +170,30 @@ function HotelsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Editar hotel" : "Novo hotel"}</DialogTitle>
+            <DialogTitle>{editing ? t("hotels.edit") : t("hotels.new")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4">
-            <div className="space-y-1.5"><Label>Nome *</Label>
+            <div className="space-y-1.5"><Label>{t("hotels.nameReq")}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
-            <div className="space-y-1.5"><Label>Endereço</Label>
+            <div className="space-y-1.5"><Label>{t("hotels.address")}</Label>
               <Input value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5"><Label>Cidade</Label>
+              <div className="space-y-1.5"><Label>{t("hotels.city")}</Label>
                 <Input value={form.city ?? ""} onChange={(e) => setForm({ ...form, city: e.target.value })} />
               </div>
-              <div className="space-y-1.5"><Label>País</Label>
+              <div className="space-y-1.5"><Label>{t("hotels.country")}</Label>
                 <Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
               </div>
             </div>
-            <div className="space-y-1.5"><Label>Observações</Label>
+            <div className="space-y-1.5"><Label>{t("hotels.notes")}</Label>
               <Textarea rows={2} value={form.notes ?? ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={save} disabled={saving}>Salvar</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+            <Button onClick={save} disabled={saving}>{t("common.save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

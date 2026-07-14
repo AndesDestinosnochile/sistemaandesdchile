@@ -36,7 +36,7 @@ type DayEvent =
   | { kind: "tour"; label: string; reservationId: string; code: string; customer: string; tourName: string; pax: number; status: string };
 
 function CalendarPage() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [cursor, setCursor] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
