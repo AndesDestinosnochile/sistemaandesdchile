@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, LogIn, LogOut as LogOutIcon, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, CalendarPlus, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_app/calendar")({
   component: CalendarPage,
 });
+
 
 interface ResRow {
   id: string;
