@@ -180,15 +180,21 @@ function ReservationDetailPage() {
               <option value="BRL">BRL</option><option value="CLP">CLP</option>
             </select>
           </F>
-          <F label="Check-in"><Input type="date" value={form.check_in} onChange={(e) => setForm({ ...form, check_in: e.target.value })} /></F>
-          <F label="Check-out"><Input type="date" value={form.check_out} onChange={(e) => setForm({ ...form, check_out: e.target.value })} /></F>
-          <F label="Hotel">
+          <F label="Hotel (hospedagem do cliente)">
             <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-              value={form.hotel_id} onChange={(e) => setForm({ ...form, hotel_id: e.target.value })}>
+              value={form.hotel_id}
+              onChange={async (e) => {
+                const hotel_id = e.target.value;
+                setForm({ ...form, hotel_id });
+                const { error } = await supabase.from("reservations").update({ hotel_id: hotel_id || null }).eq("id", id);
+                if (error) toast.error(error.message);
+                else { toast.success("Hotel atualizado"); qc.invalidateQueries({ queryKey: ["reservation", id] }); }
+              }}>
               <option value="">— sem hotel —</option>
               {hotels.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
             </select>
           </F>
+
           <F label="Valor total (auto)">
             <Input type="number" step="0.01" value={reservation.total_amount} disabled readOnly />
           </F>
