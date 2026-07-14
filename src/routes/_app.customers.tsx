@@ -95,7 +95,7 @@ function CustomersPage() {
   }
 
   async function save() {
-    if (!form.full_name.trim()) return toast.error("Nome obrigatório");
+    if (!form.full_name.trim()) return toast.error(t("customers.nameRequired"));
     setSaving(true);
     try {
       const payload = {
@@ -113,30 +113,31 @@ function CustomersPage() {
           .update(payload)
           .eq("id", editing.id);
         if (error) throw error;
-        toast.success("Passageiro atualizado");
+        toast.success(t("customers.updated"));
       } else {
         const { error } = await supabase
           .from("customers")
           .insert({ ...payload, created_by: user?.id });
         if (error) throw error;
-        toast.success("Passageiro criado");
+        toast.success(t("customers.created"));
       }
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["customers"] });
     } catch (e: any) {
-      toast.error(e.message ?? "Erro ao salvar");
+      toast.error(e.message ?? t("common.error"));
     } finally {
       setSaving(false);
     }
   }
 
   async function remove(c: Customer) {
-    if (!confirm(`Excluir ${c.full_name}?`)) return;
+    if (!confirm(t("customers.deleteConfirm", { name: c.full_name }))) return;
     const { error } = await supabase.from("customers").delete().eq("id", c.id);
     if (error) return toast.error(error.message);
-    toast.success("Passageiro excluído");
+    toast.success(t("customers.deleted"));
     qc.invalidateQueries({ queryKey: ["customers"] });
   }
+
 
   return (
     <div>
