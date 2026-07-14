@@ -56,7 +56,7 @@ function ReservationsPage() {
       let q = supabase
         .from("reservations")
         .select(
-          "id, code, currency, total_amount, paid_amount, balance, financial_status, check_in, check_out, reservation_date, customers(full_name, phone)",
+          "id, code, currency, total_amount, paid_amount, balance, financial_status, reservation_date, customers(full_name, phone)",
         )
         .order("reservation_date", { ascending: false })
         .limit(50);
