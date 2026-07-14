@@ -82,17 +82,18 @@ function ReservationsPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
-            Reservas
+            {t("reservations.kicker")}
           </p>
-          <h1 className="mt-1 text-3xl">Reservas</h1>
+          <h1 className="mt-1 text-3xl">{t("reservations.title")}</h1>
         </div>
         <Button asChild>
           <Link to="/reservations/new">
             <Plus className="h-4 w-4" />
-            Nova reserva
+            {t("reservations.new")}
           </Link>
         </Button>
       </div>
+
 
       <div className="mb-4 flex items-center gap-2">
         <div className="relative max-w-sm flex-1">
