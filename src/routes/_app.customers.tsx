@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -47,6 +49,7 @@ const empty: Omit<Customer, "id"> = {
 };
 
 function CustomersPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
@@ -54,6 +57,7 @@ function CustomersPage() {
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState<Omit<Customer, "id">>(empty);
   const [saving, setSaving] = useState(false);
+
 
   const { data = [], isLoading } = useQuery({
     queryKey: ["customers", search],
