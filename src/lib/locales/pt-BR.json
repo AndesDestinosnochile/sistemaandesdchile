@@ -50,8 +50,8 @@
     "code": "Código",
     "customer": "Passageiro",
     "seller": "Vendedor",
-    "checkIn": "Check-in",
-    "checkOut": "Check-out",
+    "date": "Data",
+
     "total": "Total",
     "paid": "Pago",
     "balance": "Saldo",
