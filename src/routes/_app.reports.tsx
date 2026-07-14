@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface Row {
 }
 
 function ReportsPage() {
+  const { t } = useTranslation();
   const first = new Date();
   first.setDate(1);
   const [from, setFrom] = useState(first.toISOString().slice(0, 10));
@@ -73,38 +75,38 @@ function ReportsPage() {
   return (
     <div>
       <div className="mb-6">
-        <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">Financeiro</p>
-        <h1 className="mt-1 text-3xl">Relatórios</h1>
+        <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">{t("reports.kicker")}</p>
+        <h1 className="mt-1 text-3xl">{t("reports.title")}</h1>
       </div>
 
       <Card className="mb-6">
         <CardContent className="flex flex-wrap items-end gap-4 py-4">
-          <div className="space-y-1.5"><Label>De</Label><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Até</Label><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>{t("reports.from")}</Label><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>{t("reports.to")}</Label><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
         </CardContent>
       </Card>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Carregando...</p>
+        <p className="text-muted-foreground">{t("common.loading")}</p>
       ) : (
         <>
           <div className="mb-6 grid gap-4 sm:grid-cols-4">
-            <StatCard label="Reservas" value={String(totals.count)} />
-            <StatCard label="Total BRL" value={formatMoney(totals.BRL.total, "BRL")} />
-            <StatCard label="Pago BRL" value={formatMoney(totals.BRL.paid, "BRL")} />
-            <StatCard label="Total CLP" value={formatMoney(totals.CLP.total, "CLP")} />
+            <StatCard label={t("reports.reservations")} value={String(totals.count)} />
+            <StatCard label={t("reports.totalBRL")} value={formatMoney(totals.BRL.total, "BRL")} />
+            <StatCard label={t("reports.paidBRL")} value={formatMoney(totals.BRL.paid, "BRL")} />
+            <StatCard label={t("reports.totalCLP")} value={formatMoney(totals.CLP.total, "CLP")} />
           </div>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Por vendedor</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{t("reports.bySeller")}</CardTitle></CardHeader>
             <CardContent className="p-0">
               <table className="w-full text-sm">
                 <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Vendedor</th>
-                    <th className="px-4 py-3 text-right font-medium">Reservas</th>
-                    <th className="px-4 py-3 text-right font-medium">Total BRL</th>
-                    <th className="px-4 py-3 text-right font-medium">Total CLP</th>
+                    <th className="px-4 py-3 font-medium">{t("reports.colSeller")}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t("reports.reservations")}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t("reports.totalBRL")}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t("reports.totalCLP")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -117,7 +119,7 @@ function ReportsPage() {
                     </tr>
                   ))}
                   {bySeller.size === 0 && (
-                    <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Sem dados no período.</td></tr>
+                    <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">{t("reports.empty")}</td></tr>
                   )}
                 </tbody>
               </table>

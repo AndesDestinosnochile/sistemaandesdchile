@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_app/users")({
 interface Profile { id: string; full_name: string; active: boolean }
 
 function UsersPage() {
+  const { t } = useTranslation();
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
 
@@ -38,7 +40,7 @@ function UsersPage() {
   const rolesOf = (id: string) => roles.filter((r) => r.user_id === id).map((r) => r.role);
 
   async function toggleRole(userId: string, role: AppRole, has: boolean) {
-    if (!isAdmin) return toast.error("Apenas admin");
+    if (!isAdmin) return toast.error(t("users.adminOnly"));
     if (has) {
       const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
       if (error) return toast.error(error.message);
@@ -52,10 +54,10 @@ function UsersPage() {
   return (
     <div>
       <div className="mb-6">
-        <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">Equipe</p>
-        <h1 className="mt-1 text-3xl">Usuários</h1>
+        <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">{t("users.kicker")}</p>
+        <h1 className="mt-1 text-3xl">{t("users.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {isAdmin ? "Clique nas funções para conceder ou remover." : "Somente administradores podem editar funções."}
+          {isAdmin ? t("users.helpAdmin") : t("users.helpReadonly")}
         </p>
       </div>
 
@@ -63,13 +65,13 @@ function UsersPage() {
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 font-medium">Nome</th>
-              <th className="px-4 py-3 font-medium">Funções</th>
-              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">{t("users.colName")}</th>
+              <th className="px-4 py-3 font-medium">{t("users.colRoles")}</th>
+              <th className="px-4 py-3 font-medium">{t("users.colStatus")}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {isLoading && <tr><td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">Carregando...</td></tr>}
+            {isLoading && <tr><td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">{t("common.loading")}</td></tr>}
             {profiles.map((p) => {
               const rs = rolesOf(p.id);
               return (
@@ -90,7 +92,7 @@ function UsersPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={p.active ? "default" : "secondary"}>{p.active ? "Ativo" : "Inativo"}</Badge>
+                    <Badge variant={p.active ? "default" : "secondary"}>{p.active ? t("users.active") : t("users.inactive")}</Badge>
                   </td>
                 </tr>
               );
