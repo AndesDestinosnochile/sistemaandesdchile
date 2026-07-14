@@ -113,7 +113,7 @@ function ReservationsPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">{t("reservations.code")}</th>
                 <th className="px-4 py-3 font-medium">{t("reservations.customer")}</th>
-                <th className="px-4 py-3 font-medium">{t("reservations.checkIn")}</th>
+                <th className="px-4 py-3 font-medium">{t("reservations.date")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("reservations.total")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("reservations.paid")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("reservations.balance")}</th>
