@@ -27,11 +27,10 @@ interface ReservationRow {
   paid_amount: number;
   balance: number;
   financial_status: FinancialStatus;
-  check_in: string | null;
-  check_out: string | null;
   reservation_date: string;
   customers: { full_name: string; phone: string | null } | null;
 }
+
 
 const STATUS_LABEL: Record<FinancialStatus, string> = {
   paid: "Pago",
