@@ -102,13 +102,12 @@ function ReservationDetailPage() {
 
       const { error } = await supabase.from("reservations").update({
         currency: form.currency,
-        check_in: form.check_in || null,
-        check_out: form.check_out || null,
         reservation_date: form.reservation_date,
         hotel_id: form.hotel_id || null,
         notes: form.notes || null,
       }).eq("id", id);
       if (error) throw error;
+
 
       // recompute totals (in case total changed relative to payments)
       await supabase.rpc("recompute_reservation_totals", { _reservation_id: id });
