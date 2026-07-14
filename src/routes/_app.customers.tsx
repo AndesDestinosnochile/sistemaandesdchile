@@ -144,19 +144,19 @@ function CustomersPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
-            Cadastro
+            {t("customers.kicker")}
           </p>
-          <h1 className="mt-1 text-3xl">Passageiros</h1>
+          <h1 className="mt-1 text-3xl">{t("customers.title")}</h1>
         </div>
         <Button onClick={openNew}>
-          <Plus className="h-4 w-4" /> Novo passageiro
+          <Plus className="h-4 w-4" /> {t("customers.new")}
         </Button>
       </div>
 
       <div className="mb-4 relative max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar por nome"
+          placeholder={t("customers.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-9"
@@ -168,11 +168,11 @@ function CustomersPage() {
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 font-medium">Nome</th>
-                <th className="px-4 py-3 font-medium">Documento</th>
-                <th className="px-4 py-3 font-medium">Contato</th>
-                <th className="px-4 py-3 font-medium">Nacionalidade</th>
-                <th className="px-4 py-3 text-right font-medium">Pax</th>
+                <th className="px-4 py-3 font-medium">{t("customers.colName")}</th>
+                <th className="px-4 py-3 font-medium">{t("customers.colDocument")}</th>
+                <th className="px-4 py-3 font-medium">{t("customers.colContact")}</th>
+                <th className="px-4 py-3 font-medium">{t("customers.colNationality")}</th>
+                <th className="px-4 py-3 text-right font-medium">{t("customers.colPax")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -180,14 +180,14 @@ function CustomersPage() {
               {isLoading && (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                    Carregando...
+                    {t("common.loading")}
                   </td>
                 </tr>
               )}
               {!isLoading && data.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
-                    Nenhum passageiro cadastrado.
+                    {t("customers.empty")}
                   </td>
                 </tr>
               )}
@@ -221,31 +221,31 @@ function CustomersPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editing ? "Editar passageiro" : "Novo passageiro"}</DialogTitle>
+            <DialogTitle>{editing ? t("customers.edit") : t("customers.new")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nome completo *">
+            <Field label={t("customers.fullNameReq")}>
               <Input
                 value={form.full_name}
                 onChange={(e) => setForm({ ...form, full_name: e.target.value })}
               />
             </Field>
-            <Field label="CPF / Documento">
+            <Field label={t("customers.cpf")}>
               <Input value={form.cpf ?? ""} onChange={(e) => setForm({ ...form, cpf: e.target.value })} />
             </Field>
-            <Field label="E-mail">
+            <Field label={t("customers.email")}>
               <Input type="email" value={form.email ?? ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </Field>
-            <Field label="Telefone">
+            <Field label={t("customers.phone")}>
               <Input value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             </Field>
-            <Field label="WhatsApp">
+            <Field label={t("customers.whatsapp")}>
               <Input value={form.whatsapp ?? ""} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} />
             </Field>
-            <Field label="Nacionalidade">
+            <Field label={t("customers.nationality")}>
               <Input value={form.nationality ?? ""} onChange={(e) => setForm({ ...form, nationality: e.target.value })} />
             </Field>
-            <Field label="Quantidade de pax">
+            <Field label={t("customers.paxCount")}>
               <Input
                 type="number"
                 min={1}
@@ -254,7 +254,7 @@ function CustomersPage() {
               />
             </Field>
             <div className="sm:col-span-2">
-              <Field label="Observações">
+              <Field label={t("customers.notes")}>
                 <Textarea
                   rows={2}
                   value={form.notes ?? ""}
@@ -264,10 +264,11 @@ function CustomersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={save} disabled={saving}>Salvar</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+            <Button onClick={save} disabled={saving}>{t("common.save")}</Button>
           </DialogFooter>
         </DialogContent>
+
       </Dialog>
     </div>
   );
