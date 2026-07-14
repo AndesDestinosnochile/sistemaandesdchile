@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowUpRight,
   CalendarClock,
   DollarSign,
   ReceiptText,
   Users2,
   Wallet,
 } from "lucide-react";
+
 import { useTranslation } from "react-i18next";
 
 import { SupabaseSetupBanner } from "@/components/common/supabase-setup-banner";
@@ -98,19 +98,6 @@ function DashboardPage() {
         })}
       </div>
 
-      <Card className="mt-8 border-border/60">
-        <CardHeader>
-          <CardTitle className="text-base">Pendente</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="grid gap-2 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <ArrowUpRight className="mt-0.5 h-4 w-4 text-accent" />
-              Envio de e-mail via Resend + histórico (configurar quando o domínio estiver pronto)
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
     </div>
   );
 }
