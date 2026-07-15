@@ -69,8 +69,15 @@ function ReservationsPage() {
 
   async function remove(r: ReservationRow) {
     if (!confirm(`Excluir reserva ${r.code}?`)) return;
-    const { error } = await supabase.from("reservations").delete().eq("id", r.id);
+    const { data: deleted, error } = await supabase
+      .from("reservations")
+      .delete()
+      .eq("id", r.id)
+      .select("id");
     if (error) return toast.error(error.message);
+    if (!deleted || deleted.length === 0) {
+      return toast.error("Sem permissão para excluir esta reserva.");
+    }
     toast.success("Reserva excluída");
     qc.invalidateQueries({ queryKey: ["reservations"] });
   }
