@@ -132,8 +132,15 @@ function CustomersPage() {
 
   async function remove(c: Customer) {
     if (!confirm(t("customers.deleteConfirm", { name: c.full_name }))) return;
-    const { error } = await supabase.from("customers").delete().eq("id", c.id);
+    const { data: deleted, error } = await supabase
+      .from("customers")
+      .delete()
+      .eq("id", c.id)
+      .select("id");
     if (error) return toast.error(error.message);
+    if (!deleted || deleted.length === 0) {
+      return toast.error("Sem permissão para excluir este cliente.");
+    }
     toast.success(t("customers.deleted"));
     qc.invalidateQueries({ queryKey: ["customers"] });
   }
